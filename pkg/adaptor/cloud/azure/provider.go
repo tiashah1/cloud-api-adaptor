@@ -235,7 +235,6 @@ func (p *azureProvider) CreateInstance(ctx context.Context, podName, sandboxID s
 					Name:         to.Ptr(diskName),
 					CreateOption: to.Ptr(armcompute.DiskCreateOptionTypesFromImage),
 					Caching:      to.Ptr(armcompute.CachingTypesReadWrite),
-					DeleteOption: to.Ptr(armcompute.DiskDeleteOptionTypesDelete),
 					ManagedDisk:  managedDiskParams,
 				},
 			},
@@ -256,12 +255,7 @@ func (p *azureProvider) CreateInstance(ctx context.Context, podName, sandboxID s
 			},
 			NetworkProfile: &armcompute.NetworkProfile{
 				NetworkInterfaces: []*armcompute.NetworkInterfaceReference{
-					{
-						ID: vmNIC.ID,
-						Properties: &armcompute.NetworkInterfaceReferenceProperties{
-							DeleteOption: to.Ptr(armcompute.DeleteOptionsDelete),
-						},
-					},
+					{ID: vmNIC.ID},
 				},
 			},
 			SecurityProfile: securityProfile,
@@ -272,12 +266,6 @@ func (p *azureProvider) CreateInstance(ctx context.Context, podName, sandboxID s
 
 	result, err := p.create(context.TODO(), &vmParameters)
 	if err != nil {
-		if err := p.deleteDisk(ctx, diskName); err != nil {
-			logger.Printf("deleting disk (%s): %s", diskName, err)
-		}
-		if err := p.deleteNetworkInterface(ctx, nicName); err != nil {
-			logger.Printf("deleting nic (%s): %s", nicName, err)
-		}
 		return nil, fmt.Errorf("Creating instance (%v): %s", result, err)
 	}
 
@@ -324,6 +312,21 @@ func (p *azureProvider) DeleteInstance(ctx context.Context, instanceID string) e
 	}
 
 	logger.Printf("deleted VM successfully: %s", vmName)
+
+	diskName := fmt.Sprintf("%s-disk", vmName)
+	if err := p.deleteDisk(ctx, diskName); err != nil {
+		err = fmt.Errorf("deleting disk: %w", err)
+		logger.Print(err)
+		return err
+	}
+
+	nicName := fmt.Sprintf("%s-net", vmName)
+	if err := p.deleteNetworkInterface(ctx, nicName); err != nil {
+		err = fmt.Errorf("deleting network interface: %w", err)
+		logger.Print(err)
+		return err
+	}
+
 	return nil
 }
 
