@@ -42,9 +42,6 @@ You may skip this step and use one of the release images, skip to [Import Releas
 
 You can do this by following the process [document](../podvm/README.md). If building within a container ensure that `--build-arg CLOUD_PROVIDER=ibmcloud` is set and `--build-arg ARCH=s390x` for an `s390x` architecture image.
 
-> **Note:** At the time of writing issue, [#649](https://github.com/confidential-containers/cloud-api-adaptor/issues/649) means when creating an `s390x` image you also need to add two extra
-build args: `--build-arg UBUNTU_IMAGE_URL=""` and `--build-arg UBUNTU_IMAGE_CHECKSUM=""`
-
 > **Note:** If building the peer pod qcow2 image within a VM, it may take a lot of resources e.g. 8 vCPU and
 32GB RAM due to the nested virtualization performance limitations. When running without enough resources, the failure
 seen is similar to:
@@ -119,7 +116,8 @@ popd
 ```
 
 This will create `caa-provisioner-cli` in the `test/tools` directory. To use the tool with an existing self-managed cluster you will need to setup a `.properties` file containing the relevant ibmcloud information to enable your cluster to create and use peer-pods. Use the following commands to generate the `.properties` file, if not using a selfmanaged cluster please update the `terraform` commands with the appropriate values manually.
-
+> **Note:** If you are running install and uninstall actions, you can use IAM_PROFILE_ID (your trusted profile ID) instead of APIKEY. 
+> **Note:** APIKEY is required for actions provision, deprovision and uploadimage
 ```bash
 export IBMCLOUD_API_KEY= # your ibmcloud apikey
 export PODVM_IMAGE_ID= # the image id of the peerpod vm uploaded in the previous step
