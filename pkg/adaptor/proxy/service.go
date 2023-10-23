@@ -29,6 +29,7 @@ type proxyService struct {
 
 const (
 	defaultPauseImage            = "registry.k8s.io/pause:3.7"
+	armadaPauseImage             = "us.icr.io/armada-master/pause-multiarch:3.9"
 	kataDirectVolumesDir         = "/run/kata-containers/shared/direct-volumes"
 	volumeTargetPathKey          = "io.confidentialcontainers.org.peerpodvolumes.target_path"
 	csiPluginEscapeQualifiedName = "kubernetes.io~csi"
@@ -36,6 +37,17 @@ const (
 )
 
 func newProxyService(dialer func(context.Context) (net.Conn, error), criClient *criClient, pauseImage string) *proxyService {
+
+	redirector := agentproto.NewRedirector(dialer)
+
+	return &proxyService{
+		Redirector: redirector,
+		criClient:  criClient,
+		pauseImage: pauseImage,
+	}
+}
+
+func newArmadaProxyService(dialer func(context.Context) (net.Conn, error), criClient *criClient, pauseImage string) *proxyService {
 
 	redirector := agentproto.NewRedirector(dialer)
 

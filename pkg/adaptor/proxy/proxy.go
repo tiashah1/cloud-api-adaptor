@@ -43,6 +43,7 @@ type criClient struct {
 
 type AgentProxy interface {
 	Start(ctx context.Context, serverURL *url.URL) error
+	StartArmada(ctx context.Context, serverURL *url.URL) error
 	Ready() chan struct{}
 	Shutdown() error
 	CAService() tlsutil.CAService
@@ -192,6 +193,84 @@ func (p *agentProxy) Start(ctx context.Context, serverURL *url.URL) error {
 	}
 
 	proxyService := newProxyService(dialer, criClient, p.pauseImage)
+	defer func() {
+		if err := proxyService.Close(); err != nil {
+			logger.Printf("error closing agent proxy connection: %v", err)
+		}
+	}()
+
+	if err := proxyService.Connect(ctx); err != nil {
+		return fmt.Errorf("error connecting to agent: %v", err)
+	}
+
+	ttrpcServer, err := ttrpc.NewServer()
+	if err != nil {
+		return fmt.Errorf("failed to create TTRPC server: %w", err)
+	}
+
+	pb.RegisterAgentServiceService(ttrpcServer, proxyService)
+	pb.RegisterImageService(ttrpcServer, proxyService)
+	pb.RegisterHealthService(ttrpcServer, proxyService)
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	ttrpcServerErr := make(chan error)
+	go func() {
+		defer close(ttrpcServerErr)
+
+		if err := ttrpcServer.Serve(ctx, listener); err != nil && !errors.Is(err, ttrpc.ErrServerClosed) {
+			ttrpcServerErr <- err
+		}
+	}()
+	defer func() {
+		if err := ttrpcServer.Shutdown(ctx); err != nil {
+			logger.Printf("error shutting down TTRPC server: %v", err)
+		}
+	}()
+
+	close(p.readyCh)
+
+	select {
+	case <-ctx.Done():
+		if err := p.Shutdown(); err != nil {
+			logger.Printf("error on shutdown: %v", err)
+		}
+	case <-p.stopCh:
+	case err := <-ttrpcServerErr:
+		return err
+	}
+
+	return nil
+}
+
+func (p *agentProxy) StartArmada(ctx context.Context, serverURL *url.URL) error {
+
+	if err := os.MkdirAll(filepath.Dir(p.socketPath), os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create parent directories for socket: %s", p.socketPath)
+	}
+	if err := os.Remove(p.socketPath); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("failed to remove %s: %w", p.socketPath, err)
+	}
+
+	logger.Printf("Listening on %s\n", p.socketPath)
+
+	listener, err := net.Listen("unix", p.socketPath)
+	if err != nil {
+		return fmt.Errorf("failed to listen on %s: %w", p.socketPath, err)
+	}
+
+	dialer := func(ctx context.Context) (net.Conn, error) {
+		return p.dial(ctx, serverURL.Host)
+	}
+
+	criClient, err := p.initCriClient(ctx)
+	if err != nil {
+		// cri client is optional currently, we ignore any errors here
+		logger.Printf("failed to init cri client, the err: %v", err)
+	}
+
+	proxyService := newArmadaProxyService(dialer, criClient, p.pauseImage)
 	defer func() {
 		if err := proxyService.Close(); err != nil {
 			logger.Printf("error closing agent proxy connection: %v", err)

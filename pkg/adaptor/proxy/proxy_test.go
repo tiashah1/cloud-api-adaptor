@@ -154,6 +154,125 @@ func TestStartStop(t *testing.T) {
 	}
 }
 
+func TestStartStopArmada(t *testing.T) {
+
+	dir := t.TempDir()
+
+	socketPath := filepath.Join(dir, "test.sock")
+
+	agentServer, err := ttrpc.NewServer()
+	if err != nil {
+		t.Fatalf("expect no error, got %q", err)
+	}
+	pb.RegisterAgentServiceService(agentServer, &agentMock{})
+	pb.RegisterImageService(agentServer, &agentMock{})
+	pb.RegisterHealthService(agentServer, &agentMock{})
+
+	agentListener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("expect no error, got %q", err)
+	}
+	defer func() {
+		err := agentListener.Close()
+		if e, a := net.ErrClosed, err; !errors.Is(a, e) {
+			t.Fatalf("expect %q, got %q", e, a)
+		}
+	}()
+
+	agentServerErrCh := make(chan error)
+	go func() {
+		defer close(agentServerErrCh)
+
+		err := agentServer.Serve(context.Background(), agentListener)
+		if err != nil {
+			agentServerErrCh <- err
+			return
+		}
+	}()
+	defer func() {
+		err := agentServer.Shutdown(context.Background())
+		if err != nil {
+			t.Fatalf("expect no error, got %q", err)
+		}
+	}()
+
+	serverURL := &url.URL{
+		Scheme: "grpc",
+		Host:   agentListener.Addr().String(),
+	}
+
+	proxy := NewAgentProxy("podvm", socketPath, "", "", nil, nil, 5*time.Second)
+	p, ok := proxy.(*agentProxy)
+	if !ok {
+		t.Fatalf("expect %T, got %T", &agentProxy{}, proxy)
+	}
+
+	proxyErrCh := make(chan error)
+	go func() {
+		defer close(proxyErrCh)
+
+		if err := proxy.StartArmada(context.Background(), serverURL); err != nil {
+			proxyErrCh <- err
+		}
+	}()
+	defer func() {
+		if err := p.Shutdown(); err != nil {
+			t.Fatalf("expect no error, got %q", err)
+		}
+	}()
+
+	select {
+	case err := <-proxyErrCh:
+		t.Fatalf("expect no error, got %q", err)
+	case <-proxy.Ready():
+	}
+
+	conn, err := net.Dial("unix", socketPath)
+	if err != nil {
+		t.Fatalf("expect no error, got %q", err)
+	}
+
+	ttrpcClient := ttrpc.NewClient(conn)
+
+	client := struct {
+		pb.AgentServiceService
+		pb.ImageService
+		pb.HealthService
+	}{
+		AgentServiceService: pb.NewAgentServiceClient(ttrpcClient),
+		ImageService:        pb.NewImageClient(ttrpcClient),
+		HealthService:       pb.NewHealthClient(ttrpcClient),
+	}
+
+	{
+		res, err := client.PullImage(context.Background(), &pb.PullImageRequest{Image: "abc", ContainerId: "123"})
+		if err != nil {
+			t.Fatalf("expect no error, got %q", err)
+		}
+		if res == nil {
+			t.Fatal("expect non nil, got nil")
+		}
+	}
+
+	{
+		res, err := client.CreateContainer(context.Background(), &pb.CreateContainerRequest{ContainerId: "123", OCI: &pb.Spec{Annotations: map[string]string{"aaa": "111"}}})
+		if err != nil {
+			t.Fatalf("expect no error, got %q", err)
+		}
+		if res == nil {
+			t.Fatal("expect non nil, got nil")
+		}
+	}
+
+	select {
+	case err := <-agentServerErrCh:
+		t.Fatalf("expect no error, got %q", err)
+	case err := <-proxyErrCh:
+		t.Fatalf("expect no error, got %q", err)
+	default:
+	}
+}
+
 func TestDialerSuccess(t *testing.T) {
 	p := &agentProxy{
 		proxyTimeout: 5 * time.Second,

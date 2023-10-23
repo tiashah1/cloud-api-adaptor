@@ -128,6 +128,7 @@ $(SKOPEO_SRC):
 
 $(SKOPEO_BIN): $(SKOPEO_SRC)
 	cd "$(SKOPEO_SRC)" && CC= $(MAKE) bin/skopeo
+	$(shell skopeo --version)
 
 # The umoci release page only publishes amd64 binaries. https://github.com/opencontainers/umoci/releases
 $(UMOCI_SRC):

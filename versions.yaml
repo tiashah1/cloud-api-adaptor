@@ -41,6 +41,9 @@ git:
   skopeo:
     url: https://github.com/containers/skopeo
     reference: v1.5.0
+  yq:
+    url: "https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_x86_64"
+    reference: v4.34.1
 oci:
   pause:
     registry: docker://registry.k8s.io/pause
