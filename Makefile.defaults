@@ -2,8 +2,7 @@ YQ_COMMAND ?= yq
 
 $(shell wget "https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64" -O "yq")
 $(shell chmod +x "yq")
-$(shell ls -a)
-
+$(shell ls)
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
 ifeq (, $(shell command -v $(YQ_COMMAND) 2> /dev/null))
