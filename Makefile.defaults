@@ -1,11 +1,24 @@
 YQ_COMMAND ?= yq
 
-$(shell wget "https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64" -O "yq" && chmod +x "yq")
+SHELL := /bin/bash
+
+$(shell wget "https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64" -O "yq")
+$(shell chmod +x "yq")
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
+ifeq (, $(shell command -v $(YQ_COMMAND) 2> /dev/null))
+$(error "$(YQ_COMMAND) not found, consider doing snap install yq")
+endif
+
+YQ_MAJOR_VERSION := $(shell $(YQ_COMMAND) --version | sed -nE 's/.* v?([0-9]+).*/\1/p')
+
+ifneq (4, $(YQ_MAJOR_VERSION))
+$(error "yq major version should be 4, is: $(YQ_MAJOR_VERSION)")
+endif
+
 define query
-$(or $(shell yq '.$(1) | select(. != null)' $(VERSIONS_SRC)), \
+$(or $(shell $(YQ_COMMAND) '.$(1) | select(. != null)' $(VERSIONS_SRC)), \
 	$(error $(1) is not set, and could not be automatically set from $(VERSIONS_SRC)))
 endef
 
