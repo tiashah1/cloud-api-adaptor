@@ -6,7 +6,7 @@ SHELL := /bin/bash
 	sudo apt-add-repository multiverse
 	sudo apt-add-repository restricted
 	sudo apt update
-	mkdir -p /home/$$USER/.local/bin
+	mkdir -p /home/$$USER/local/bin
 	sudo apt -y install software-properties-common build-essential checkinstall wget curl git libssl-dev apt-transport-https
 	apt install yq -y
 	yq --version
