@@ -1,9 +1,7 @@
 YQ_COMMAND ?= yq
 
-$(shell  snap install yq)
-
-SKOPEO_VERSION := $(or $(SKOPEO_VERSION),$(call query,git.skopeo.reference))
-$(shell yum install -y curl protobuf-compiler libseccomp-devel openssl openssl-devel perl skopeo-${SKOPEO_VERSION})
+$(shell wget "https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_x86_64")
+YQ_COMMAND = $(shell wget "https://github.com/mikefarah/yq/releases/download/v4.34.1/-yq_linux_x86_64")
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
