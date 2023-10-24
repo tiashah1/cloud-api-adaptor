@@ -1,12 +1,12 @@
 YQ_COMMAND ?= yq
 
-$(shell wget "https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64" -O "yq")
-$(shell chmod +x "yq")
+$$(shell wget "https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64" -O "yq")
+$$(shell chmod +x "yq")
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
 define query
-$(or $(shell $(YQ_COMMAND) '.$(1) | select(. != null)' $(VERSIONS_SRC)), \
+$(or $(shell yq '.$(1) | select(. != null)' $(VERSIONS_SRC)), \
 	$(error $(1) is not set, and could not be automatically set from $(VERSIONS_SRC)))
 endef
 
