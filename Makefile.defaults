@@ -7,8 +7,6 @@ VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
 ifeq (, $(shell command -v $(YQ_COMMAND) 2> /dev/null))
 $(error "$(YQ_COMMAND) not found, consider doing snap install yq")
-else
-$(shell echo "yq installed")
 endif
 
 YQ_MAJOR_VERSION := $(shell $(YQ_COMMAND) --version | sed -nE 's/.* v?([0-9]+).*/\1/p')
@@ -21,6 +19,8 @@ define query
 $(or $(shell $(YQ_COMMAND) '.$(1) | select(. != null)' $(VERSIONS_SRC)), \
 	$(error $(1) is not set, and could not be automatically set from $(VERSIONS_SRC)))
 endef
+
+$(shell echo "YQ installed")
 
 ubuntu_RELEASE ?= focal
 centos_RELEASE ?= stream-9

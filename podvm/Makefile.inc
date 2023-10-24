@@ -72,7 +72,7 @@ $(shell sed -i "s|\(aa_kbc_params = \)\"[^\"]*\"|\1\"${AA_KBC}::${KBC_URI}\"|g" 
 KATA_AGENT_SRC = ../../../kata-containers/src/agent
 KATA_AGENT_BUILD_TYPE = release
 
-SKOPEO_SRC ?= skopeo
+SKOPEO_SRC = ./files/usr/local
 SKOPEO_BIN ?= $(SKOPEO_SRC)/bin/skopeo
 
 UMOCI_SRC   = umoci
