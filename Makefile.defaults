@@ -2,7 +2,7 @@ YQ_COMMAND ?= yq
 
 SHELL := /bin/bash
 .ONESHELL:
-$(shell apt update && apt install yq -y && chmod +x yq)
+$(shell cd ${ROOT_DIR} && apt update && apt install yq -y && chmod +x yq)
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
