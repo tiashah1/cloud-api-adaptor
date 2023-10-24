@@ -2,7 +2,13 @@ YQ_COMMAND ?= yq
 
 SHELL := /bin/bash
 .ONESHELL:
-$(shell cd ${ROOT_DIR} && apt update && apt install yq -y && chmod +x yq)
+sudo apt-add-repository universe
+sudo apt-add-repository multiverse
+sudo apt-add-repository restricted
+sudo apt update
+mkdir -p /home/$$USER/.local/bin
+sudo apt -y install software-properties-common build-essential checkinstall wget curl git libssl-dev apt-transport-https 
+apt install yq -y
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
