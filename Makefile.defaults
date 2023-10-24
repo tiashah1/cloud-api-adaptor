@@ -1,16 +1,5 @@
 YQ_COMMAND ?= yq
 
-SHELL := /bin/bash
-.ONESHELL:
-	sudo apt-add-repository universe
-	sudo apt-add-repository multiverse
-	sudo apt-add-repository restricted
-	sudo apt update
-	mkdir -p /home/$$USER/local/bin
-	sudo apt -y install software-properties-common build-essential checkinstall wget curl git libssl-dev apt-transport-https
-	apt install yq -y
-	yq --version
-
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
 ifeq (, $(shell command -v $(YQ_COMMAND) 2> /dev/null))
