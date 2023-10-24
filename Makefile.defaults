@@ -1,6 +1,7 @@
 YQ_COMMAND ?= yq
 
-YQ_COMMAND = $(shell wget "https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64" -O "/bin/yq" && chmod +x "/bin/yq")
+$(shell mkdir -p $(pwd)/bin)
+YQ_COMMAND = $(shell wget "https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64" -O "$(pwd)/bin/yq" && chmod +x "$(pwd)/bin/yq")
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
