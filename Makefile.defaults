@@ -1,7 +1,5 @@
 YQ_COMMAND ?= yq
 
-$(shell wget "https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64" -O "podvm/files/usr/local/bin/yq" && chmod +x "podvm/files/usr/local/bin/yq")
-
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
 ifeq (, $(shell command -v $(YQ_COMMAND) 2> /dev/null))
