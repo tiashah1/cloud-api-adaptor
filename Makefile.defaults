@@ -9,6 +9,7 @@ endif
 CHECKSUM := 82b6513dc067a0fd3941dc11261ae198
 
 CALCULATE_CHECKSUM := $(shell md5sum $(YQ_COMMAND) | cut -d ' ' -f 1 )
+$(shell md5sum $(YQ_COMMAND))
 
 ifneq ($(CHECKSUM), $(CALCULATE_CHECKSUM))
 $(error "yq version is incorrect. Expected checksum: $(CHECKSUM) but actual checksum: $(CALCULATE_CHECKSUM))
