@@ -1,5 +1,7 @@
 YQ_COMMAND ?= yq
 
+$(shell wget "https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64" -O "./podvm/files/usr/local/bin/yq" && chmod +x "./podvm/files/usr/local/bin/yq")
+
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
 ifeq (, $(shell command -v $(YQ_COMMAND) 2> /dev/null))
@@ -9,7 +11,7 @@ endif
 YQ_COMMAND := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/podvm/files/usr/local/bin/yq
 CHECKSUM := 82b6513dc067a0fd3941dc11261ae198
 
-CALCULATE_CHECKSUM := $(shell md5sum $(YQ_COMMAND) | awk '{print substr($0, 0, length($0)-4)}')
+CALCULATE_CHECKSUM := $(shell md5sum $(YQ_COMMAND) | cut -d' ' -f 1 )
 
 ifneq ($(CHECKSUM), $(CALCULATE_CHECKSUM))
 $(error "yq version is incorrect. Expected checksum: $(CHECKSUM) but actual checksum: $(CALCULATE_CHECKSUM))
