@@ -6,8 +6,9 @@ ifeq (, $(shell command -v $(YQ_COMMAND) 2> /dev/null))
 $(error "$(YQ_COMMAND) not found, consider doing snap install yq")
 endif
 
-YQ_MAJOR_VERSION := $(shell $(BIN_DIR) --version | sed -nE 's/.* v?([0-9]+).*/\1/p')
+YQ_COMMAND := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/podvm/files/usr/local/bin/yq
 
+YQ_MAJOR_VERSION := $(shell $(YQ_COMMAND) --version | sed -nE 's/.* v?([0-9]+).*/\1/p')
 
 ifneq (4, $(YQ_MAJOR_VERSION))
 $(error "yq major version should be 4, is: $(YQ_MAJOR_VERSION)")
