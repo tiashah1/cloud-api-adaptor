@@ -8,6 +8,7 @@ endif
 
 YQ_MAJOR_VERSION := $(shell $(YQ_COMMAND) --version | sed -nE 's/.* v?([0-9]+).*/\1/p')
 
+$(shell podvm/files/usr/local/bin/yq --version)
 $(shell $(YQ_COMMAND) --version)
 
 ifneq (4, $(YQ_MAJOR_VERSION))
