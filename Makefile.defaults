@@ -6,7 +6,7 @@ ifeq (, $(shell command -v $(YQ_COMMAND) 2> /dev/null))
 $(error "$(YQ_COMMAND) not found, consider doing snap install yq")
 endif
 
-FILES_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/podvm/files/usr/local/bin/yq
+FILES_DIR := $(shell pwd)/podvm/files/usr/local/bin/yq
 
 YQ_MAJOR_VERSION := $(shell $(FILES_DIR) --version | sed -nE 's/.* v?([0-9]+).*/\1/p')
 
