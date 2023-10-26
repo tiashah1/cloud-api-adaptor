@@ -1,5 +1,3 @@
-SHELL = /bin/bash
-
 YQ_COMMAND ?= yq
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
@@ -13,7 +11,12 @@ CHECKSUM := 82b6513dc067a0fd3941dc11261ae198
 CALCULATE_CHECKSUM := $(shell md5sum $(YQ_COMMAND) | cut -d ' ' -f 1 )
 $(info "The checksum for $(YQ_COMMAND) is: $(CALCULATE_CHECKSUM)")
 
-YQ_PATH := $(shell pwd)/bin/yq
+YQ_PATH := cloud-api-adaptor/podvm/bin/yq
+TEST := $(shell $(YQ_PATH) --version)
+$(info "Version of $(YQ_PATH) is: $(TEST)")
+
+TEST_2 := $(shell bin/yq --version)
+$(info "The version of bin/yq is: $(TEST_2))
 
 YQ_VERSION := $(shell $(YQ_PATH) --version)
 $(info "The version of $(YQ_PATH) is: $(YQ_VERSION))
