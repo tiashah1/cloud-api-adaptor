@@ -1,6 +1,3 @@
-SHELL := bin/bash
-.ONESHELL:
-
 YQ_COMMAND ?= yq
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
