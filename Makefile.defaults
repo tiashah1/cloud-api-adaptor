@@ -16,7 +16,7 @@ TEST := $(shell $(YQ_PATH) --version)
 $(info "Version of $(YQ_PATH) is: $(TEST)")
 
 TEST_2 := $(shell bin/yq --version)
-$(info "The version of bin/yq is: $(TEST_2))
+$(info "The version of bin/yq is: $(TEST_2)")
 
 YQ_VERSION := $(shell $(YQ_PATH) --version)
 $(info "The version of $(YQ_PATH) is: $(YQ_VERSION))
