@@ -72,7 +72,7 @@ $(shell sed -i "s|\(aa_kbc_params = \)\"[^\"]*\"|\1\"${AA_KBC}::${KBC_URI}\"|g" 
 KATA_AGENT_SRC = ../../../kata-containers/src/agent
 KATA_AGENT_BUILD_TYPE = release
 
-SKOPEO_SRC = ./files/usr/local
+SKOPEO_SRC ?= skopeo
 SKOPEO_BIN ?= $(SKOPEO_SRC)/bin/skopeo
 
 UMOCI_SRC   = umoci
@@ -128,7 +128,6 @@ $(SKOPEO_SRC):
 
 $(SKOPEO_BIN): $(SKOPEO_SRC)
 	cd "$(SKOPEO_SRC)" && CC= $(MAKE) bin/skopeo
-	$(shell skopeo --version)
 
 # The umoci release page only publishes amd64 binaries. https://github.com/opencontainers/umoci/releases
 $(UMOCI_SRC):
