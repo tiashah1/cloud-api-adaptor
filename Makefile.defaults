@@ -11,7 +11,7 @@ CHECKSUM := 82b6513dc067a0fd3941dc11261ae198
 CALCULATE_CHECKSUM := $(shell md5sum $(YQ_COMMAND) | cut -d ' ' -f 1 )
 $(info "The checksum for $(YQ_COMMAND) is: $(CALCULATE_CHECKSUM)")
 
-TEST := $(shell bin/yq/ --version)
+TEST := $(shell bin/yq --version)
 $(info "Test: $(TEST)")
 
 ifneq ($(CHECKSUM), $(CALCULATE_CHECKSUM))
