@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 YQ_COMMAND ?= yq
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
@@ -13,6 +15,9 @@ $(info "The checksum for $(YQ_COMMAND) is: $(CALCULATE_CHECKSUM)")
 
 TEST := $(shell bin/yq --version)
 $(info "Test: $(TEST)")
+
+TEST_ONE := $(shell $(YQ_COMMAND) --version)
+$(info "Test: ${TEST_ONE}")
 
 ifneq ($(CHECKSUM), $(CALCULATE_CHECKSUM))
 $(error "yq version is incorrect. Expected checksum: $(CHECKSUM) but actual checksum: $(CALCULATE_CHECKSUM))
