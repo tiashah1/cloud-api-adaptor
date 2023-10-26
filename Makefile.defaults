@@ -15,6 +15,11 @@ ifneq ($(CHECKSUM), $(CALCULATE_CHECKSUM))
 $(error "yq version is incorrect. Expected checksum: $(CHECKSUM) but actual checksum: $(CALCULATE_CHECKSUM))
 endif
 
+PATH := $(shell pwd)/podvm/files/usr/local/bin/yq
+TEST := $(shell $(PATH) -- version)
+TEST_MAJOR := $(shell $(PATH) -- version | sed -nE 's/.* v?([0-9]+).*/\1/p')
+$(info "The major version of $(PATH) is: $(TEST_MAJOR) and the full version is $(TEST)")
+
 YQ_MAJOR_VERSION := $(shell $(YQ_COMMAND) --version | sed -nE 's/.* v?([0-9]+).*/\1/p')
 
 ifneq (4, $(YQ_MAJOR_VERSION))
