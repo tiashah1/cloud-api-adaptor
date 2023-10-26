@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 YQ_COMMAND ?= yq
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
