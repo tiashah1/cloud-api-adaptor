@@ -14,7 +14,7 @@ $(info "The checksum for $(YQ_COMMAND) is: $(CALCULATE_CHECKSUM)")
 TEST = $(shell bash -c "$$(bin/yq --version)")
 $(info "Test: $(TEST)")
 
-TEST_ONE = $(shell /bin/bash -c "$$(bin/yq --version)")
+TEST_ONE = $(shell -c "$$(bin/yq --version)")
 $(info "Test: $(TEST_ONE)")
 
 ifneq ($(CHECKSUM), $(CALCULATE_CHECKSUM))
