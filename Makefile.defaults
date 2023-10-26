@@ -1,5 +1,4 @@
 YQ_COMMAND ?= yq
-
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
 
 ifeq (, $(shell command -v $(YQ_COMMAND) 2> /dev/null))
