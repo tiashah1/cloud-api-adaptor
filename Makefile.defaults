@@ -1,3 +1,6 @@
+SHELL := bin/bash
+.ONESHELL:
+
 YQ_COMMAND ?= yq
 
 VERSIONS_SRC := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/versions.yaml
@@ -11,7 +14,8 @@ CHECKSUM := 82b6513dc067a0fd3941dc11261ae198
 CALCULATE_CHECKSUM := $(shell md5sum $(YQ_COMMAND) | cut -d ' ' -f 1 )
 $(info "The checksum for $(YQ_COMMAND) is: $(CALCULATE_CHECKSUM)")
 
-bash -c "bin/yq --version"
+TEST = $(shell bin/bash --version)
+$(info "Test: $(TEST)")
 
 YQ_VERSION := $(shell $(YQ_PATH) --version)
 $(info "The version of $(YQ_PATH) is: $(YQ_VERSION))
