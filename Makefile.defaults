@@ -11,11 +11,14 @@ CHECKSUM := 82b6513dc067a0fd3941dc11261ae198
 CALCULATE_CHECKSUM := $(shell md5sum $(YQ_COMMAND) | cut -d ' ' -f 1 )
 $(info "The checksum is: $(CALCULATE_CHECKSUM)")
 
-TEST_CHECKSUM := $(shell md5sum $(shell pwd)/povm/files/usr/local/bin/yq)
-$(info "Testing checksum: $(TEST_CHECKSUM)")
-
 ifneq ($(CHECKSUM), $(CALCULATE_CHECKSUM))
 $(error "yq version is incorrect. Expected checksum: $(CHECKSUM) but actual checksum: $(CALCULATE_CHECKSUM))
+endif
+
+YQ_MAJOR_VERSION := $(shell $(YQ_COMMAND) --version | sed -nE 's/.* v?([0-9]+).*/\1/p')
+
+ifneq (4, $(YQ_MAJOR_VERSION))
+$(error "yq major version should be 4, is: $(YQ_MAJOR_VERSION)")
 endif
 
 define query
